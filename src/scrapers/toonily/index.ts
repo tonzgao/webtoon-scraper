@@ -6,7 +6,7 @@ export const isToonily = (url: string) => {
 }
 
 export class Toonily extends HeadlessScraper {
-
+    
 }
 
 const scraper = {

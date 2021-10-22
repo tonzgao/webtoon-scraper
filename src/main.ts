@@ -1,3 +1,9 @@
-export {scrape} from './worker'
+import { Command } from 'commander';
+import {scrape} from './worker'
 
-// TODO: use argparse
+const program = new Command();
+program.requiredOption('-u, --url <url>', 'url to scrape')
+program.parse(process.argv);
+
+const options = program.opts();
+scrape(program.url, options);
