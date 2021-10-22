@@ -1,19 +1,31 @@
-import playwright from 'playwright'
+import {chromium, Browser, Page} from 'playwright'
 import {BaseScraper} from './base'
 
 // TODO: add stealth - see https://github.com/berstend/puppeteer-extra/issues/454
 
-export class HeadlessScraper extends BaseScraper {
-    browser: playwright.Browser;
-    page: playwright.Page;
+export abstract class HeadlessScraper extends BaseScraper {
+  browser: Browser;
+  page: Page;
 
-    public async start() {
-        this.browser = await playwright.chromium.launch();
-        const context = await this.browser.newContext();
-        this.page = await context.newPage();
-    }
+  public async scrapeAll(url: string) {
+    await this.start();
+    try {
+      await super.scrapeAll(url);
+    } finally {
+      await this.close();
+    }   
+  }
 
-    public async close() {
-        await this.browser.close();
-    }
+  // TODO: allow setting launch options
+  protected async start() {
+    this.browser = await chromium.launch({
+      headless: false // TODO: remove depending on env
+    });
+    const context = await this.browser.newContext();
+    this.page = await context.newPage();
+  }
+
+  protected async close() {
+    await this.browser.close();
+  }
 }

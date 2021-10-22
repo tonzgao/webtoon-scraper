@@ -1,14 +1,21 @@
-// TODO: consider converting to interface
+import {mapSeries} from '../../helpers'
+
 export abstract class BaseScraper {
   public async scrapeAll(url: string) {
-    throw new Error('TODO')
+    const chapters = await this.listChapters(url);
+    await mapSeries(chapters, async (url, chapter) => {
+      const files = await this.scrapeChapter(url)
+      await mapSeries(files, async (file, i) => {
+        await this.save(file, chapter, i)
+      })
+    })
   }
 
-  protected async scrapeChapter(url: string, chapter: number) {
-    // TODO
-  }
+  protected abstract listChapters(url: string): Promise<string[]>
 
-  protected async save(chapter: number, file: number) {
+  protected abstract scrapeChapter(url: string): Promise<Buffer[]>
+
+  protected async save(buffer: Buffer, chapter: number, file: number) {
     // TODO
   }
 }

@@ -6,7 +6,14 @@ export const isToonily = (url: string) => {
 }
 
 export class Toonily extends HeadlessScraper {
-    
+
+  protected listChapters(url: string): Promise<string[]> {
+      throw new Error('TODO')
+  }
+
+  protected scrapeChapter(url: string): Promise<Buffer[]> {
+      throw new Error('TODO')
+  }
 }
 
 const scraper = {
