@@ -34,7 +34,9 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
+    "@cliqz/adblocker-playwright": "^1.23.0",
     "commander": "^6.2.1",
+    "cross-fetch": "^3.1.4",
     "lodash": "^4.17.21",
     "playwright": "^1.15.2",
     "puppeteer-extra-plugin-stealth": "^2.9.0",

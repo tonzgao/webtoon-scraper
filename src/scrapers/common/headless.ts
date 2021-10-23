@@ -1,4 +1,7 @@
 import { chromium, Browser, Page } from 'playwright' // TODO: add relevant plugins with automation-extra: see https://github.com/berstend/puppeteer-extra/pull/303
+import { PlaywrightBlocker } from '@cliqz/adblocker-playwright';
+import fetch from 'cross-fetch'; // required 'fetch'
+
 import { BaseScraper } from './base'
 
 export abstract class HeadlessScraper extends BaseScraper {
@@ -22,9 +25,9 @@ export abstract class HeadlessScraper extends BaseScraper {
     });
 
     // Update user agent
-    const page = await (await this.browser.newContext()).newPage()
-    const originalUserAgent = await page.evaluate(() => { return navigator.userAgent });
-    await page.close();
+    const chromiumPage = await (await this.browser.newContext()).newPage()
+    const originalUserAgent = await chromiumPage.evaluate(() => { return navigator.userAgent });
+    await chromiumPage.close();
     const browserContext = await this.browser.newContext({
       userAgent: originalUserAgent.replace("Headless", ""),
     });
@@ -61,6 +64,11 @@ export abstract class HeadlessScraper extends BaseScraper {
     for (const evasion of stealth.callbacks) {
       await browserContext.addInitScript(evasion.cb, evasion.a);
     }
+
+    // Add adblocker
+    PlaywrightBlocker.fromPrebuiltAdsAndTracking(fetch).then((blocker) => {
+      blocker.enableBlockingInPage(this.page);
+    });
   }
 
   protected async close() {
