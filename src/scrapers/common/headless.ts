@@ -1,5 +1,5 @@
-import {chromium, Browser, Page} from 'playwright' // TODO: add relevant plugins with automation-extra: see https://github.com/berstend/puppeteer-extra/pull/303
-import {BaseScraper} from './base'
+import { chromium, Browser, Page } from 'playwright' // TODO: add relevant plugins with automation-extra: see https://github.com/berstend/puppeteer-extra/pull/303
+import { BaseScraper } from './base'
 
 export abstract class HeadlessScraper extends BaseScraper {
   browser: Browser;
@@ -11,7 +11,7 @@ export abstract class HeadlessScraper extends BaseScraper {
       await super.scrapeAll(url);
     } finally {
       await this.close();
-    }   
+    }
   }
 
   // TODO: allow setting launch options
@@ -48,12 +48,13 @@ export abstract class HeadlessScraper extends BaseScraper {
       'webgl.vendor',
       'window.outerdimensions'
     ];
+    // eslint-disable-next-line
     // @ts-ignore
     const evasions = enabledEvasions.map(e => new require(`puppeteer-extra-plugin-stealth/evasions/${e}`));
     const stealth = {
       callbacks: [] as any[],
       async evaluateOnNewDocument(...args) {
-          this.callbacks.push({ cb: args[0], a: args[1] })
+        this.callbacks.push({ cb: args[0], a: args[1] })
       }
     }
     evasions.forEach(e => e().onPageCreated(stealth));

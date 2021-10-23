@@ -1,4 +1,4 @@
-import {mapSeries} from '../../helpers'
+import { mapSeries } from '../../helpers'
 
 export abstract class BaseScraper {
   public async scrapeAll(url: string) {

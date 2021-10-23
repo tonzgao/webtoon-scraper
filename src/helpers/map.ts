@@ -1,4 +1,4 @@
-import {each} from 'lodash';
+import { each } from 'lodash';
 
 type MapSeriesIteratee<T, U> = (value: T, index: number) => Promise<U>;
 type Dictionary<T> = {
