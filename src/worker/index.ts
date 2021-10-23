@@ -14,5 +14,5 @@ const matchUrl = (url: string) => {
 export const scrape = async (url: string, options: Record<string, string>) => {
   const match = matchUrl(url);
   const scraper = new match.scraper();
-  return scraper.scrapeAll(url)
+  return scraper.scrapeAll(url, options)
 }

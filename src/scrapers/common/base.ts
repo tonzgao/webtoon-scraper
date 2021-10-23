@@ -1,10 +1,14 @@
-import { mapSeries } from '../../helpers'
+import { mapSeries, wait, limiter } from '../../helpers'
 
 export abstract class BaseScraper {
-  public async scrapeAll(url: string) {
+  // Attach helpers
+  wait = wait;
+  limiter = limiter;
+
+  public async scrapeAll(url: string, options?: Record<string, string>) {
     const chapters = await this.listChapters(url);
     await mapSeries(chapters, async (url, chapter) => {
-      const files = await this.scrapeChapter(url)
+      const files = await this.limiter.schedule(() => this.scrapeChapter(url))
       await mapSeries(files, async (file, i) => {
         await this.save(file, chapter, i)
       })
