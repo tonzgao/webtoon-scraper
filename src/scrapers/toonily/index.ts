@@ -1,3 +1,5 @@
+import {wait} from '../../helpers'
+
 import {HeadlessScraper} from '../common'
 
 export const isToonily = (url: string) => {
@@ -7,11 +9,13 @@ export const isToonily = (url: string) => {
 
 export class Toonily extends HeadlessScraper {
 
-  protected listChapters(url: string): Promise<string[]> {
+  protected async listChapters(url: string): Promise<string[]> {
+      await this.page.goto(url, {waitUntil: 'networkidle'})
+      await wait(5000)
       throw new Error('TODO')
   }
 
-  protected scrapeChapter(url: string): Promise<Buffer[]> {
+  protected async scrapeChapter(url: string): Promise<Buffer[]> {
       throw new Error('TODO')
   }
 }

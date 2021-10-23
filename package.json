@@ -37,6 +37,7 @@
     "commander": "^6.2.1",
     "lodash": "^4.17.21",
     "playwright": "^1.15.2",
+    "puppeteer-extra-plugin-stealth": "^2.9.0",
     "tslib": "~2.3.1"
   },
   "volta": {
