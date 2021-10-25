@@ -74,4 +74,14 @@ export abstract class HeadlessScraper extends BaseScraper {
   protected async close() {
     await this.browser.close();
   }
+
+  protected async click(selector: string, args: { require?: boolean }) {
+    if (!args.require) {
+      const exists = await this.page.$(selector)
+      if (!exists) {
+        return
+      }
+    }
+    await this.page.click(selector);
+  }
 }

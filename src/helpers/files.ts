@@ -1,5 +1,6 @@
 import fs from 'fs'
-import FileType from 'file-type'
+import * as FileType from 'file-type'
+console.warn('here', FileType)
 
 export const fileExists = async path => !!(await fs.promises.stat(path).catch(e => false));
 

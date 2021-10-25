@@ -1,6 +1,6 @@
 import path from 'path'
 
-import { fileExists, writeFile, getFileType, mapSeries, wait, limiter } from '../../helpers'
+import { fileExists, writeFile, getFileType, mapSeries, wait, limiter, runTimeout } from '../../helpers'
 
 interface ScraperOptions extends Record<string, undefined | string | boolean> {
   path?: string;
@@ -19,7 +19,9 @@ export abstract class BaseScraper {
 
   // Attach helpers
   wait = wait;
+  runTimeout = runTimeout;
   limiter = limiter;
+  mapSeries = mapSeries;
 
   public async scrapeAll(url: string, options: ScraperOptions = {}) {
     this.options = options;
@@ -33,6 +35,7 @@ export abstract class BaseScraper {
           number,
         })
       })
+      throw new Error('test')
     })
   }
 
@@ -52,6 +55,7 @@ export abstract class BaseScraper {
       ...name,
       extension,
     });
+    console.debug('fileName', fileName);
     if (!this.options.override && await fileExists(fileName)) {
       return
     }
