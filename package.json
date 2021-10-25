@@ -38,6 +38,7 @@
     "bottleneck": "^2.19.5",
     "commander": "^6.2.1",
     "cross-fetch": "^3.1.4",
+    "file-type": "^16.5.3",
     "lodash": "^4.17.21",
     "playwright": "^1.15.2",
     "puppeteer-extra-plugin-stealth": "^2.9.0",

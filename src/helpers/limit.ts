@@ -1,8 +1,7 @@
 import Bottleneck from 'bottleneck'
 
-// TODO: allow setting values with flags
 export const limiter = new Bottleneck({
-  reservoir: 2, // initial value
+  reservoir: 2,
   reservoirRefreshAmount: 2,
   reservoirRefreshInterval: 10 * 1000, // must be divisible by 250
   maxConcurrent: 1,

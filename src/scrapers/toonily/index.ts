@@ -7,9 +7,11 @@ export const isToonily = (url: string) => {
 
 export class Toonily extends HeadlessScraper {
 
-  protected async listChapters(url: string): Promise<string[]> {
+  protected async scrapeMeta(url: string): Promise<{
+    series: string, chapters: string[]
+  }> {
     await this.page.goto(url, { waitUntil: 'networkidle' })
-    await this.wait(5000)
+    await this.wait(20000)
     throw new Error('TODO')
   }
 
