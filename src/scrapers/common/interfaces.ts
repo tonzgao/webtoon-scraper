@@ -5,12 +5,13 @@ export interface FileInfo {
   extension?: string,
 }
 
-export interface FileOptions extends Record<string, undefined | string | boolean | number> {
-  path?: string;
-  override?: boolean;
+export interface FileOptions extends Record<string, any> {
+  path?: string,
+  override?: boolean,
 }
 
 export interface ScraperOptions extends FileOptions {
   minChapter: number,
   maxChapter: number,
+  strict?: boolean,
 };

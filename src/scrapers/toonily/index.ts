@@ -44,11 +44,23 @@ export class Toonily extends HeadlessScraper {
     }
 
     for (const i of range((await getImages()).length)) {
-      const result = await runTimeout(1000, () => pollSource(i))
-      yield {
-        image: result,
-        number: i,
-      };
+      try {
+        const result = await runTimeout(1000, () => pollSource(i))
+        yield {
+          image: result,
+          number: i,
+        };
+      } catch (e) {
+        if (this.options.strict) {
+          throw e
+        }
+        console.debug(e)
+        yield {
+          image: undefined,
+          number: i
+        }
+      }
+
     }
   }
 
@@ -59,6 +71,9 @@ export class Toonily extends HeadlessScraper {
     await this.page.goto(url, { waitUntil: 'networkidle' });
     for await (const link of this.scrapeLinks()) {
       const { image, number } = link
+      if (!image) {
+        continue;
+      }
       const path = this.fileHandler.generateFileName({
         ...name,
         number,

@@ -5,6 +5,7 @@ import { setRateLimits } from './helpers'
 const program = new Command();
 program.requiredOption('-u, --url <url>', 'url to scrape')
 program.option('-d, --debug')
+program.option('-s, --strict', 'fail on error')
 program.option('-o, --path <path>')
 program.option('-m, --minChapter <min>', 'minimum chapter number')
 program.option('-M, --maxChapter <max>', 'maximum chapter number')
