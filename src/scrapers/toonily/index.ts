@@ -1,5 +1,6 @@
-import fetch from 'cross-fetch';
-import { filter } from 'lodash';
+import { range } from 'lodash';
+import { ElementHandle } from 'playwright'
+
 import { runTimeout } from '../../helpers';
 
 import { HeadlessScraper } from '../common'
@@ -25,42 +26,46 @@ export class Toonily extends HeadlessScraper {
     }
   }
 
-  protected async scrapeFile(src: string) {
-    const response = await fetch(src)
-    const buffer = await response.arrayBuffer();
-    return Buffer.from(buffer);
-  }
+  protected async *scrapeLinks() {
+    const getImages = async () => await this.page.$$('.wp-manga-chapter-img')
 
-  protected async scrapeLinks() {
-    const pollSources = async () => {
-      while (true) {
-        const { sources, missing } = await this.page.evaluate<{
-          sources: string[],
-          missing: boolean
-        }>(() => {
-          const els = Array.from(document.querySelectorAll('.wp-manga-chapter-img'))
-          const sources = els.map(img => (img as any).src) as string[]
-          const missing = els.find(img => !(img as any).src)
-          if (missing) {
-            missing.scrollIntoView();
-          }
-          return { sources, missing: Boolean(missing) }
-        })
-        if (!missing) {
-          return sources;
-        }
+    const pollSource = async (n: number) => {
+      const images = await getImages();
+      const image = images[n] as ElementHandle<HTMLImageElement>
+      const loaded = await image.evaluate((el) => {
+        const source = el.src
+        el.scrollIntoView()
+        return Boolean(source);
+      })
+      if (!loaded) {
         await this.wait(100);
       }
+      return image;
     }
-    return runTimeout(30 * 1000, pollSources)
+
+    for (const i of range((await getImages()).length)) {
+      const result = await runTimeout(1000, () => pollSource(i))
+      yield {
+        image: result,
+        number: i + 1,
+      };
+    }
   }
 
-  protected async scrapeChapter(url: string): Promise<Buffer[]> {
+  protected async scrapeChapter(url: string, name: {
+    series: string,
+    chapter: number
+  }): Promise<void> {
     await this.page.goto(url, { waitUntil: 'networkidle' });
-    const links = await this.scrapeLinks();
-    // TODO: yield links
-    const files = await this.mapSeries(links, async link => await this.scrapeFile(link))
-    return files;
+    for await (const link of this.scrapeLinks()) {
+      const { image, number } = link
+      const path = this.fileHandler.generateFileName({
+        ...name,
+        number,
+        extension: 'png'
+      })
+      await this.fileHandler.screenshot(image, path)
+    }
   }
 }
 

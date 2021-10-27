@@ -1,11 +1,12 @@
-import path from 'path'
+import * as path from 'path'
+import { ElementHandle } from 'playwright'
 
-import { fileExists, writeFile, getFileType, mapSeries, wait, limiter, runTimeout } from '../../helpers'
+import { fileExists, writeFile, getFileType, padNumber, escapeTitle, mapSeries, wait, limiter, runTimeout } from '../../helpers'
 
 interface FileInfo {
   series: string,
   chapter: number,
-  number: number,
+  number?: number,
   extension?: string,
 }
 
@@ -22,22 +23,35 @@ class FileHandler {
   constructor(options: FileOptions) {
     this.options = options
   }
-  protected async getFileType(buffer: Buffer) {
+  public async getFileType(buffer: Buffer) {
     const extension = await getFileType(buffer);
     return extension
   }
 
-  protected generateFileName(name: Required<FileInfo>): string {
+  public generateFileName(name: Required<FileInfo>): string {
     const basePath = this.options.path ?? __dirname;
-    const fileName = path.join(basePath, name.series, `${name.chapter}_${name.number}.${name.extension}`);
+    const fileName = path.join(basePath, escapeTitle(name.series), `${padNumber(name.chapter, 3)}_${padNumber(name.number)}.${name.extension}`);
     return fileName
   }
 
-  protected async save(buffer: Buffer, name: string) {
-    if (!this.options.override && await fileExists(name)) {
+  private async fileExists(name: string) {
+    return !this.options.override && await fileExists(name)
+  }
+
+  public async save(buffer: Buffer, name: string) {
+    if (await this.fileExists(name)) {
       return
     }
     return await writeFile(name, buffer);
+  }
+
+  public async screenshot(image: ElementHandle<HTMLImageElement>, name: string) {
+    if (await this.fileExists(name)) {
+      return
+    }
+    return await image.screenshot({
+      path: name
+    })
   }
 }
 
@@ -59,19 +73,14 @@ export abstract class BaseScraper {
   public async scrapeAll(url: string) {
     const { series, chapters } = await this.scrapeMeta(url);
     await mapSeries(chapters, async (url, chapter) => {
-      const files = await this.limiter.schedule(() => this.scrapeChapter(url))
-      // await mapSeries(files, async (file, number) => {
-      //   await this.save(file, {
-      //     series,
-      //     chapter,
-      //     number,
-      //   })
-      // })
-      // throw new Error('test')
+      await this.limiter.schedule(() => this.scrapeChapter(url, {
+        series, chapter
+      }))
+      throw new Error('TODO')
     })
   }
 
   protected abstract scrapeMeta(url: string): Promise<{ series: string, chapters: string[] }>
 
-  protected abstract scrapeChapter(url: string): Promise<Buffer[]>
+  protected abstract scrapeChapter(url: string, name: FileInfo): Promise<void>
 }
