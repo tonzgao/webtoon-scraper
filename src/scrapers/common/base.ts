@@ -1,21 +1,24 @@
-import { mapSeries, wait, limiter, runTimeout } from '../../helpers'
+import Bottleneck from 'bottleneck';
+import { mapSeries, wait, setRateLimits, runTimeout } from '../../helpers'
 
 import { FileHandler } from './files'
 import { FileInfo, ScraperOptions } from '.'
+
 
 export abstract class BaseScraper {
   // Attach helpers
   wait = wait;
   runTimeout = runTimeout;
-  limiter = limiter;
   mapSeries = mapSeries;
 
   options: ScraperOptions;
   fileHandler: FileHandler;
+  limiter: Bottleneck;
 
   constructor(options: ScraperOptions) {
     this.options = options;
     this.fileHandler = new FileHandler(options);
+    this.limiter = setRateLimits(options);
   }
 
   // Check if chapter is in scope
