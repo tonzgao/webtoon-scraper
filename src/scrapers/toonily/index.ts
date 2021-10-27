@@ -20,7 +20,7 @@ export class Toonily extends HeadlessScraper {
     await this.click('.btn-adult-confirm', { require: false })
     await this.page.waitForSelector('.post-title');
     const title = await this.page.$eval('.post-title', el => el.textContent) as string;
-    const chapters = await this.page.$$eval('.wp-manga-chapter a', els => els.map(a => (a as any).href))
+    const chapters = await this.page.$$eval('.wp-manga-chapter a', els => els.map(a => (a as HTMLAnchorElement).href))
     return {
       series: title.trim(),
       chapters: chapters.reverse(),

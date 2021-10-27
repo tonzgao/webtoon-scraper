@@ -2,7 +2,7 @@ import * as fs from 'fs'
 import * as FileType from 'file-type'
 
 // Check if file already exists in the directory
-export const fileExists = async path => !!(await fs.promises.stat(path).catch(e => false));
+export const fileExists = async path => !!(await fs.promises.stat(path).catch(_ => false));
 
 // Write file to the directory
 export const writeFile = async (file: string, buffer: Buffer | string) => fs.writeFileSync(file, buffer);

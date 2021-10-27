@@ -8,8 +8,8 @@ export abstract class HeadlessScraper extends BaseScraper {
   browser: Browser;
   page: Page;
 
-  public async scrapeAll(url: string, options?: Record<string, string>) {
-    await this.start(options);
+  public async scrapeAll(url: string) {
+    await this.start();
     try {
       await super.scrapeAll(url);
     } finally {
@@ -19,7 +19,7 @@ export abstract class HeadlessScraper extends BaseScraper {
 
   // Start headless browser
   // TODO: allow setting more launch options
-  protected async start(options: Record<string, string> = {}) {
+  protected async start() {
     this.browser = await chromium.launch({
       channel: 'chrome',
       headless: !this.options.debug
