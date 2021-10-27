@@ -2,11 +2,6 @@ import path from 'path'
 
 import { fileExists, writeFile, getFileType, mapSeries, wait, limiter, runTimeout } from '../../helpers'
 
-interface ScraperOptions extends Record<string, undefined | string | boolean> {
-  path?: string;
-  override?: boolean;
-}
-
 interface FileInfo {
   series: string,
   chapter: number,
@@ -14,34 +9,23 @@ interface FileInfo {
   extension?: string,
 }
 
-export abstract class BaseScraper {
-  options: ScraperOptions
+interface FileOptions extends Record<string, undefined | string | boolean> {
+  path?: string;
+  override?: boolean;
+}
 
-  // Attach helpers
-  wait = wait;
-  runTimeout = runTimeout;
-  limiter = limiter;
-  mapSeries = mapSeries;
+type ScraperOptions = FileOptions;
 
-  public async scrapeAll(url: string, options: ScraperOptions = {}) {
-    this.options = options;
-    const { series, chapters } = await this.scrapeMeta(url);
-    await mapSeries(chapters, async (url, chapter) => {
-      const files = await this.limiter.schedule(() => this.scrapeChapter(url))
-      await mapSeries(files, async (file, number) => {
-        await this.save(file, {
-          series,
-          chapter,
-          number,
-        })
-      })
-      throw new Error('test')
-    })
+class FileHandler {
+  options: FileOptions;
+
+  constructor(options: FileOptions) {
+    this.options = options
   }
-
-  protected abstract scrapeMeta(url: string): Promise<{ series: string, chapters: string[] }>
-
-  protected abstract scrapeChapter(url: string): Promise<Buffer[]>
+  protected async getFileType(buffer: Buffer) {
+    const extension = await getFileType(buffer);
+    return extension
+  }
 
   protected generateFileName(name: Required<FileInfo>): string {
     const basePath = this.options.path ?? __dirname;
@@ -49,16 +33,45 @@ export abstract class BaseScraper {
     return fileName
   }
 
-  protected async save(buffer: Buffer, name: FileInfo) {
-    const extension = await getFileType(buffer);
-    const fileName = this.generateFileName({
-      ...name,
-      extension,
-    });
-    console.debug('fileName', fileName);
-    if (!this.options.override && await fileExists(fileName)) {
+  protected async save(buffer: Buffer, name: string) {
+    if (!this.options.override && await fileExists(name)) {
       return
     }
-    return await writeFile(fileName, buffer);
+    return await writeFile(name, buffer);
   }
+}
+
+export abstract class BaseScraper {
+  // Attach helpers
+  wait = wait;
+  runTimeout = runTimeout;
+  limiter = limiter;
+  mapSeries = mapSeries;
+
+  options: ScraperOptions;
+  fileHandler: FileHandler;
+
+  constructor(options: ScraperOptions) {
+    this.options = options;
+    this.fileHandler = new FileHandler(options);
+  }
+
+  public async scrapeAll(url: string) {
+    const { series, chapters } = await this.scrapeMeta(url);
+    await mapSeries(chapters, async (url, chapter) => {
+      const files = await this.limiter.schedule(() => this.scrapeChapter(url))
+      // await mapSeries(files, async (file, number) => {
+      //   await this.save(file, {
+      //     series,
+      //     chapter,
+      //     number,
+      //   })
+      // })
+      // throw new Error('test')
+    })
+  }
+
+  protected abstract scrapeMeta(url: string): Promise<{ series: string, chapters: string[] }>
+
+  protected abstract scrapeChapter(url: string): Promise<Buffer[]>
 }

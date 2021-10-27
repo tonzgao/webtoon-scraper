@@ -13,6 +13,6 @@ const matchUrl = (url: string) => {
 // TODO: allow multithreading
 export const scrape = async (url: string, options: Record<string, string>) => {
   const match = matchUrl(url);
-  const scraper = new match.scraper();
-  return scraper.scrapeAll(url, options)
+  const scraper = new match.scraper(options);
+  return scraper.scrapeAll(url)
 }

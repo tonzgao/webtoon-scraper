@@ -1,4 +1,5 @@
 import fetch from 'cross-fetch';
+import { filter } from 'lodash';
 import { runTimeout } from '../../helpers';
 
 import { HeadlessScraper } from '../common'
@@ -33,13 +34,21 @@ export class Toonily extends HeadlessScraper {
   protected async scrapeLinks() {
     const pollSources = async () => {
       while (true) {
-        const links = await this.page.$$eval<string[]>('.wp-manga-chapter-img', els => els.map(img => (img as any).src))
-        const sources = links.filter(x => x);
-        if (sources.length === links.length) {
-          return links;
+        const { sources, missing } = await this.page.evaluate<{
+          sources: string[],
+          missing: boolean
+        }>(() => {
+          const els = Array.from(document.querySelectorAll('.wp-manga-chapter-img'))
+          const sources = els.map(img => (img as any).src) as string[]
+          const missing = els.find(img => !(img as any).src)
+          if (missing) {
+            missing.scrollIntoView();
+          }
+          return { sources, missing: Boolean(missing) }
+        })
+        if (!missing) {
+          return sources;
         }
-        // TODO: scroll into missing src instead
-        await this.page.evaluate(() => window.scrollBy(0, window.innerHeight));
         await this.wait(100);
       }
     }
@@ -49,6 +58,7 @@ export class Toonily extends HeadlessScraper {
   protected async scrapeChapter(url: string): Promise<Buffer[]> {
     await this.page.goto(url, { waitUntil: 'networkidle' });
     const links = await this.scrapeLinks();
+    // TODO: yield links
     const files = await this.mapSeries(links, async link => await this.scrapeFile(link))
     return files;
   }
