@@ -1,4 +1,4 @@
-import { chromium, Browser, Page } from 'playwright' // TODO: add relevant plugins with automation-extra: see https://github.com/berstend/puppeteer-extra/pull/303
+import { chromium, Browser, Page, ElementHandle } from 'playwright' // TODO: add relevant plugins with automation-extra: see https://github.com/berstend/puppeteer-extra/pull/303
 import { PlaywrightBlocker } from '@cliqz/adblocker-playwright';
 import fetch from 'cross-fetch'; // required 'fetch'
 
@@ -17,6 +17,7 @@ export abstract class HeadlessScraper extends BaseScraper {
     }
   }
 
+  // Start headless browser
   // TODO: allow setting more launch options
   protected async start(options: Record<string, string> = {}) {
     this.browser = await chromium.launch({
@@ -71,10 +72,12 @@ export abstract class HeadlessScraper extends BaseScraper {
     });
   }
 
+  // Close headless browser
   protected async close() {
     await this.browser.close();
   }
 
+  // Helper function to optionally click a selector
   protected async click(selector: string, args: { require?: boolean }) {
     if (!args.require) {
       const exists = await this.page.$(selector)
@@ -83,5 +86,16 @@ export abstract class HeadlessScraper extends BaseScraper {
       }
     }
     await this.page.click(selector);
+  }
+
+  // Save html element to disk
+  public async screenshot(image: ElementHandle<HTMLImageElement>, name: string) {
+    if (await this.fileHandler.fileExists(name)) {
+      return
+    }
+    console.debug(`Saving ${name}`)
+    return await image.screenshot({
+      path: name
+    })
   }
 }

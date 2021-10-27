@@ -18,11 +18,13 @@ export abstract class BaseScraper {
     this.fileHandler = new FileHandler(options);
   }
 
+  // Check if chapter is in scope
   private skipChapter(counter: number) {
     const chapter = counter + 1;
     return chapter < this.options.minChapter || chapter > this.options.maxChapter
   }
 
+  // Scrape chapters
   public async scrapeAll(url: string) {
     const { series, chapters } = await this.scrapeMeta(url);
     await mapSeries(chapters, async (url, chapter) => {

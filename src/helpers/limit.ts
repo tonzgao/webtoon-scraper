@@ -12,6 +12,7 @@ const parseLimitOptions = (options: Record<string, string>) => {
   return undefined;
 }
 
+// Set rate limits from options
 export const setRateLimits = (options: Bottleneck.ConstructorOptions) => {
   const limitOptions = parseLimitOptions(options);
   if (!limitOptions) {

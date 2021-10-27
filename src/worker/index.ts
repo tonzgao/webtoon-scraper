@@ -2,6 +2,7 @@ import { find } from 'lodash'
 
 import scrapers, { ScraperOptions } from '../scrapers'
 
+// Determine which scraper to use from url
 const matchUrl = (url: string) => {
   const match = find(scrapers, s => s.matcher(url))
   if (!match) {
@@ -20,6 +21,7 @@ const parseScraperOptions = (options: Record<string, any>) => {
   } as ScraperOptions;
 }
 
+// Run scraper
 // TODO: allow multithreading
 export const scrape = async (url: string, options: Record<string, any>) => {
   const match = matchUrl(url);

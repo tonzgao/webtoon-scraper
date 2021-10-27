@@ -12,6 +12,7 @@ export const isToonily = (url: string) => {
 
 export class Toonily extends HeadlessScraper {
 
+  // Scrape series title and chapter urls
   protected async scrapeMeta(url: string): Promise<{
     series: string, chapters: string[]
   }> {
@@ -26,6 +27,7 @@ export class Toonily extends HeadlessScraper {
     }
   }
 
+  // Scrape all images in a chapter
   protected async *scrapeLinks() {
     const getImages = async () => await this.page.$$('.wp-manga-chapter-img')
 
@@ -64,6 +66,7 @@ export class Toonily extends HeadlessScraper {
     }
   }
 
+  // Scrape a single chapter
   protected async scrapeChapter(url: string, name: {
     series: string,
     chapter: number
@@ -79,7 +82,7 @@ export class Toonily extends HeadlessScraper {
         number,
         extension: 'png'
       })
-      await this.fileHandler.screenshot(image, path)
+      await this.screenshot(image, path)
     }
   }
 }

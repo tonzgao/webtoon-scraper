@@ -5,6 +5,7 @@ const timeout = async (ms: number) => {
   throw new Error('Timeout')
 }
 
+// Add timeout to async function
 export const runTimeout = async <T>(ms: number, promise: () => Promise<T>): Promise<T> => {
   return Promise.race([
     promise(),
