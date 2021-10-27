@@ -13,7 +13,7 @@ export const getFileType = async (file: Buffer) => {
   return result.ext as string;
 }
 
-export const padNumber = (input: number, pad: number = 2) => {
+export const padNumber = (input: number, pad = 2) => {
   return String(input).padStart(pad, '0')
 }
 

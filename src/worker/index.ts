@@ -1,6 +1,6 @@
 import { find } from 'lodash'
 
-import scrapers from '../scrapers'
+import scrapers, { ScraperOptions } from '../scrapers'
 
 const matchUrl = (url: string) => {
   const match = find(scrapers, s => s.matcher(url))
@@ -10,9 +10,19 @@ const matchUrl = (url: string) => {
   return match;
 }
 
+const parseScraperOptions = (options: Record<string, any>) => {
+  const minChapter = options.minChapter ? Number(options.minChapter) : 0;
+  const maxChapter = options.maxChapter ? Number(options.maxChapter) : Infinity;
+  return {
+    ...options,
+    minChapter,
+    maxChapter
+  } as ScraperOptions;
+}
+
 // TODO: allow multithreading
-export const scrape = async (url: string, options: Record<string, string>) => {
+export const scrape = async (url: string, options: Record<string, any>) => {
   const match = matchUrl(url);
-  const scraper = new match.scraper(options);
+  const scraper = new match.scraper(parseScraperOptions(options));
   return scraper.scrapeAll(url)
 }

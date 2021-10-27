@@ -47,7 +47,7 @@ export class Toonily extends HeadlessScraper {
       const result = await runTimeout(1000, () => pollSource(i))
       yield {
         image: result,
-        number: i + 1,
+        number: i,
       };
     }
   }

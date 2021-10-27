@@ -17,11 +17,11 @@ export abstract class HeadlessScraper extends BaseScraper {
     }
   }
 
-  // TODO: allow setting launch options
+  // TODO: allow setting more launch options
   protected async start(options: Record<string, string> = {}) {
     this.browser = await chromium.launch({
       channel: 'chrome',
-      headless: false // TODO: remove depending on env
+      headless: !this.options.debug
     });
 
     // Update user agent
