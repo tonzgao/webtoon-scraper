@@ -11,7 +11,9 @@ export interface FileOptions extends Record<string, any> {
 }
 
 export interface ScraperOptions extends FileOptions {
+  debug?: boolean,
+  strict?: boolean,
   minChapter: number,
   maxChapter: number,
-  strict?: boolean,
+  timeout: number,
 };

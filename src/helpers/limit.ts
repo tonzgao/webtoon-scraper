@@ -1,15 +1,23 @@
 import Bottleneck from 'bottleneck'
 
-export const limiter = new Bottleneck({
-  reservoir: 2,
-  reservoirRefreshAmount: 2,
-  reservoirRefreshInterval: 10 * 1000, // must be divisible by 250
+const defaultOptions = {
+  reservoir: 1,
+  reservoirRefreshAmount: 1,
+  reservoirRefreshInterval: 5 * 1000, // must be divisible by 250
   maxConcurrent: 1,
-});
+}
+
+export const limiter = new Bottleneck(defaultOptions);
 
 const parseLimitOptions = (options: Record<string, string>) => {
-  // TODO: implement
-  return undefined;
+  if (!options.rateLimit) {
+    return
+  }
+  // TODO: broken atm: https://github.com/SGrondin/bottleneck/issues/185
+  return {
+    ...defaultOptions,
+    reservoirRefreshInterval: Number(options.rateLimit)
+  };
 }
 
 // Set rate limits from options

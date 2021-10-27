@@ -61,12 +61,27 @@ export class Toonily extends HeadlessScraper {
   }
 
   // Scrape image in a chapter
-  private async scrapeLink(n: number) {
+  private async scrapeLink(n: number, name: {
+    series: string, chapter: number
+  }) {
+    // Check if file already exists
+    const fileName = this.fileHandler.generateFileName({
+      ...name,
+      number: n,
+      extension: 'png'
+    })
+    if (await this.fileHandler.fileExists(fileName)) {
+      return {
+        fileName
+      }
+    }
+
+    // Pull file
     try {
-      const result = await runTimeout(1000, () => this.pollSource(n))
+      const result = await runTimeout(this.options.timeout ?? 1000, () => this.pollSource(n))
       return {
         image: result,
-        number: n,
+        fileName,
       };
     } catch (e) {
       if (this.options.strict) {
@@ -74,16 +89,17 @@ export class Toonily extends HeadlessScraper {
       }
       console.debug(e)
       return {
-        image: undefined,
-        number: n
+        fileName,
       }
     }
   }
 
   // Scrape all images in a chapter
-  protected async *scrapeLinks() {
+  protected async *scrapeLinks(name: {
+    series: string, chapter: number
+  }) {
     for (const i of range((await this.getImages()).length)) {
-      yield await this.scrapeLink(i);
+      yield await this.scrapeLink(i, name);
     }
   }
 
@@ -92,18 +108,14 @@ export class Toonily extends HeadlessScraper {
     series: string,
     chapter: number
   }): Promise<void> {
+    console.debug(`Scraping chapter ${name.chapter}`)
     await this.page.goto(url, { waitUntil: 'networkidle' });
-    for await (const link of this.scrapeLinks()) {
-      const { image, number } = link
+    for await (const link of this.scrapeLinks(name)) {
+      const { image, fileName } = link
       if (!image) {
         continue;
       }
-      const path = this.fileHandler.generateFileName({
-        ...name,
-        number,
-        extension: 'png'
-      })
-      await this.screenshot(image, path)
+      await this.screenshot(image, fileName)
     }
   }
 }
