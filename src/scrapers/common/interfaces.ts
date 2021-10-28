@@ -17,4 +17,5 @@ export interface ScraperOptions extends FileOptions {
   maxChapter: number,
   timeout?: number,
   rateLimit?: number,
+  seriesName?: string,
 };

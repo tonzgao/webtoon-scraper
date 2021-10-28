@@ -108,7 +108,7 @@ export class Toonily extends HeadlessScraper {
     series: string,
     chapter: number
   }): Promise<void> {
-    console.debug(`Scraping chapter ${name.chapter}`)
+    console.debug(`Scraping chapter ${name.chapter + 1}`)
     await this.page.goto(url, { waitUntil: 'networkidle' });
     for await (const link of this.scrapeLinks(name)) {
       const { image, fileName } = link

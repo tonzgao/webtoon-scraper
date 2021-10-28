@@ -32,11 +32,11 @@ export abstract class BaseScraper {
     const { series, chapters } = await this.scrapeMeta(url);
     await mapSeries(chapters, async (url, chapter) => {
       if (this.skipChapter(chapter)) {
-        console.debug(`Skipping chapter ${chapter}`)
+        console.debug(`Skipping chapter ${chapter + 1}`)
         return;
       }
       await this.limiter.schedule(() => this.scrapeChapter(url, {
-        series, chapter
+        series: this.options.seriesName ?? series, chapter
       }))
     })
   }
