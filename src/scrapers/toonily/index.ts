@@ -94,15 +94,6 @@ export class Toonily extends HeadlessScraper {
     }
   }
 
-  // Scrape all images in a chapter
-  protected async *scrapeLinks(name: {
-    series: string, chapter: number
-  }) {
-    for (const i of range((await this.getImages()).length)) {
-      yield await this.scrapeLink(i, name);
-    }
-  }
-
   // Scrape a single chapter
   protected async scrapeChapter(url: string, name: {
     series: string,
@@ -110,10 +101,16 @@ export class Toonily extends HeadlessScraper {
   }): Promise<void> {
     console.debug(`Scraping chapter ${name.chapter + 1}`)
     await this.page.goto(url, { waitUntil: 'networkidle' });
-    for await (const link of this.scrapeLinks(name)) {
-      const { image, fileName } = link
+    for (const i of range((await this.getImages()).length)) {
+      const { image, fileName } = await this.scrapeLink(i, name);
       if (!image) {
         continue;
+      }
+      try {
+        await image.scrollIntoViewIfNeeded();
+      } catch (e) {
+        console.warn(i, e) // TODO: find out what is causing this - may be related to chromium version, see https://github.com/microsoft/playwright/issues/5765
+        return;
       }
       await this.screenshot(image, fileName)
     }
