@@ -40,6 +40,7 @@ export class Toonily extends HeadlessScraper {
   private async getSource(n: number) {
     const images = await this.getImages();
     const image = images[n] as ElementHandle<HTMLImageElement>
+    // Check that image is loaded
     const loaded = await image.evaluate((el) => {
       const source = el.src
       el.scrollIntoView()
@@ -47,6 +48,12 @@ export class Toonily extends HeadlessScraper {
     })
     if (!loaded) {
       await this.wait(100);
+    }
+    // Check that scrolling to image has not loaded other images and hidden the desired one
+    try {
+      await image.scrollIntoViewIfNeeded({ timeout: 100 });
+    } catch (e) {
+      return
     }
     return image;
   }
@@ -105,12 +112,6 @@ export class Toonily extends HeadlessScraper {
       const { image, fileName } = await this.scrapeLink(i, name);
       if (!image) {
         continue;
-      }
-      try {
-        await image.scrollIntoViewIfNeeded();
-      } catch (e) {
-        console.warn(i, e) // TODO: find out what is causing this - may be related to chromium version, see https://github.com/microsoft/playwright/issues/5765
-        return;
       }
       await this.screenshot(image, fileName)
     }
