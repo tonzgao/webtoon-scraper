@@ -22,7 +22,7 @@
     "typescript": "~4.4.3"
   },
   "scripts": {
-    "start": "node build/src/main.js",
+    "start": "node --max-old-space-size=4096 build/src/main.js",
     "clean": "rimraf coverage build tmp",
     "prebuild": "npm run lint",
     "build": "tsc -p tsconfig.release.json",
@@ -40,7 +40,7 @@
     "cross-fetch": "^3.1.4",
     "file-type": "^16.5.3",
     "lodash": "^4.17.21",
-    "playwright": "^1.15.2",
+    "playwright": "^1.16.2",
     "puppeteer-extra-plugin-stealth": "^2.9.0",
     "tslib": "~2.3.1"
   },
