@@ -5,28 +5,23 @@ import { runTimeout } from '../../helpers';
 
 import { HeadlessScraper } from '../common'
 
-const titleElement = '.post-title';
-const chapterElement = '.wp-manga-chapter a'
-const imageElement = '.wp-manga-chapter-img'
+const titleElement = '.story-info-right h1';
+const chapterElement = 'a.chapter-name'
+const imageElement = '.container-chapter-reader img'
 
-export const isToonily = (url: string) => {
-  return url.includes('toonily.com') ||
-    url.includes('hiperdex.com') ||
-    url.includes('webtoon.xyz')
+export const isMangakakalot = (url: string) => {
+  return url.includes('mangakakalot.com') ||
+    url.includes('manganelo.com') ||
+    url.includes('manganato.com')
 }
 
-export class Toonily extends HeadlessScraper {
-
-  protected async closePopup(): Promise<void> {
-    await this.click('.btn-adult-confirm', { require: false })
-  }
+export class Mangakakalot extends HeadlessScraper {
 
   // Scrape series title and chapter urls
   protected async scrapeMeta(url: string): Promise<{
     series: string, chapters: string[]
   }> {
     await this.page.goto(url, { waitUntil: 'load' })
-    await this.closePopup();
     await this.page.waitForSelector(titleElement, { timeout: 60000 });
     const title = await this.page.$eval(titleElement, el => el.textContent) as string;
     const chapters = await this.page.$$eval(chapterElement, els => els.map(a => (a as HTMLAnchorElement).href))
@@ -124,7 +119,7 @@ export class Toonily extends HeadlessScraper {
 }
 
 const scraper = {
-  scraper: Toonily,
-  matcher: isToonily,
+  scraper: Mangakakalot,
+  matcher: isMangakakalot,
 }
 export default scraper;

@@ -1,7 +1,10 @@
 import Toonily from './toonily'
+import Mangakakalot from './mangakakalot'
+
 export * from './common'
 
 const scrapers = {
-    Toonily
+    Toonily,
+    Mangakakalot,
 }
 export default scrapers
